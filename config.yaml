@@ -1,0 +1,95 @@
+port: 7890
+socks-port: 7891
+mixed-port: 7892
+allow-lan: true
+mode: rule
+log-level: info
+ipv6: false
+external-controller: 127.0.0.1:9090
+
+dns:
+  enable: true
+  listen: 127.0.0.1:53
+  ipv6: false
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  nameserver:
+    - https://doh.pub/dns-query
+    - https://dns.alidns.com/dns-query
+  fallback:
+    - https://1.0.0.1/dns-query
+    - https://8.8.8.8/dns-query
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    ipcidr:
+      - 240.0.0.0/4
+
+proxies:
+  - name: "VLESS-Reality-107.174.93.107"
+    type: vless
+    server: 107.174.93.107
+    port: 443
+    uuid: a27a6aae-383c-4d20-9be7-382efa6c9745
+    network: tcp
+    tls: true
+    flow: xtls-rprx-vision
+    reality-opts:
+      public-key: cC5PTzGZJ8OSEDcro-cgZLe3A5PPVLRdAVBqJoC_AkU
+      fingerprint: chrome
+      server-name: www.microsoft.com
+      short-id: 88b8601d02c22614
+    client-fingerprint: chrome
+
+proxy-groups:
+  - name: "🚀 节点选择"
+    type: select
+    proxies:
+      - "VLESS-Reality-107.174.93.107"
+      - "♻️ 自动选择"
+      - "🎯 全球直连"
+  
+  - name: "♻️ 自动选择"
+    type: url-test
+    proxies:
+      - "VLESS-Reality-107.174.93.107"
+    url: "http://www.gstatic.com/generate_204"
+    interval: 300
+    tolerance: 50
+  
+  - name: "🎯 全球直连"
+    type: select
+    proxies:
+      - DIRECT
+  
+  - name: "🌍 国外媒体"
+    type: select
+    proxies:
+      - "🚀 节点选择"
+      - "♻️ 自动选择"
+      - "🎯 全球直连"
+  
+  - name: "📲 电报消息"
+    type: select
+    proxies:
+      - "🚀 节点选择"
+      - "♻️ 自动选择"
+      - "🎯 全球直连"
+  
+  - name: "🐟 漏网之鱼"
+    type: select
+    proxies:
+      - "VLESS-Reality-107.174.93.107"
+      - "♻️ 自动选择"
+      - "🎯 全球直连"
+
+rules:
+  - GEOIP,LAN,🎯 全球直连
+  - GEOIP,CN,🎯 全球直连
+  - GEOSITE,CN,🎯 全球直连
+  - GEOSITE,GEOLOCATION-!CN,🌍 国外媒体
+  - GEOSITE,TELEGRAM,📲 电报消息
+  - MATCH,🐟 漏网之鱼
